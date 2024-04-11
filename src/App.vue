@@ -114,23 +114,6 @@ function signup() {
   <main>
     <div id="wrapper">
       <template v-if="user">
-        <div class="bar">
-          <h1>Tournament</h1>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="2rem"
-            height="2rem"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="#ffffff"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-            <path d="M13.5 6.5l4 4" />
-          </svg>
-        </div>
         <div class="bar-two">
           <div class="btn" @click="logout">Logga ut</div>
           <div class="btn" @click="openPopup('usermanageP')">Hantera konto</div>
@@ -229,40 +212,17 @@ main {
 }
 
 #wrapper {
+  width: 100%;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   max-width: 720px;
 }
 
-.cover {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
 #bg {
   background-image: linear-gradient(to bottom, hsl(0, 0%, 20%), hsl(0, 0%, 30%));
   background-position: center;
   background-size: cover;
-}
-
-.label {
-  color: white;
-  margin: 0.5rem;
-}
-
-.bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0.25rem;
-}
-
-.bar > * {
-  margin: 0.25rem;
 }
 
 .bar-two {
@@ -272,39 +232,5 @@ main {
 
 .bar-two > * {
   width: 50%;
-}
-
-.btn {
-  background-color: hsl(0, 0%, 40%);
-  margin: 0.5rem;
-  padding: 1.25rem;
-  border-radius: 1rem;
-  font-weight: bold;
-  transition: filter 0.125s linear;
-}
-
-.btn:hover {
-  filter: brightness(105%);
-  cursor: pointer;
-}
-
-.pop-input {
-  background-color: white;
-  border: 0;
-}
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  place-items: center;
-  background-color: hsla(0, 0%, 0%, 0.75);
-}
-
-.error {
-  color: red;
 }
 </style>

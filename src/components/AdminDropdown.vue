@@ -37,8 +37,8 @@ function toggleMinimized() {
       </svg>
     </div>
     <div v-if="props.items?.length > 0" class="dropdown-content">
-      <div v-for="item in props.items" :key="item.title" class="btn" @click="$emit('itemclick', item)">
-        {{ item.title }}
+      <div v-for="item in props.items" :key="item.name" class="btn" @click="$emit('itemclick', item)">
+        {{ item.name }}
       </div>
     </div>
     <div v-else style="margin: 0.5rem">Här var det tomt.</div>

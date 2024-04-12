@@ -138,14 +138,14 @@ function signup() {
               class="btn pop-input"
               type="text"
               :value="userIn"
-              @blur="function(e) {userIn = e.target.value}"
+              @blur="e=>{userIn = e.target.value}"
             />
             <div class="label">Lösenord:</div>
             <input
               class="btn pop-input"
               type="password"
               :value="passIn"
-              @blur="function(e) {passIn = e.target.value}"
+              @blur="e=>{passIn = e.target.value}"
             />
             <div class="btn" @click="login">Logga in</div>
             <div class="label error">{{ popupError }}</div>
@@ -162,28 +162,28 @@ function signup() {
               class="btn pop-input"
               type="text"
               :value="userIn"
-              @blur="function(e) {userIn = e.target.value}"
+              @blur="e=>{userIn = e.target.value}"
             />
             <div class="label">Epost:</div>
             <input
               class="btn pop-input"
               type="text"
               :value="mailIn"
-              @blur="function(e) {mailIn = e.target.value}"
+              @blur="e=>{mailIn = e.target.value}"
             />
             <div class="label">Lösenord:</div>
             <input
               class="btn pop-input"
               type="password"
               :value="passIn"
-              @blur="function(e) {passIn = e.target.value}"
+              @blur="e=>{passIn = e.target.value}"
             />
             <div class="label">Lösenord (igen):</div>
             <input
               class="btn pop-input"
               type="password"
               :value="passAgainIn"
-              @blur="function(e) {passAgainIn = e.target.value}"
+              @blur="e=>{passAgainIn = e.target.value}"
             />
             <div class="btn" @click="signup">Skapa konto</div>
             <div class="label error">{{ popupError }}</div>

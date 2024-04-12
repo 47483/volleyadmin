@@ -40,6 +40,8 @@
   display: grid;
   place-items: center;
   background-color: hsla(0, 0%, 0%, 0.75);
+
+  z-index: 100;
 }
 
 .pop-input {

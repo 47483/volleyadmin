@@ -3,11 +3,36 @@ import AdminDropdown from '@/components/AdminDropdown.vue'
 import {ref} from 'vue'
 import * as api from '@/assets/api.js'
 
-const props = defineProps(['user', 'token']);
+const props = defineProps(['user', 'token'])
 
 const tournamentIn = ref('')
-const tournament = ref({name:'test'})
-const error = ref('');
+const tournament = ref(null)
+const error = ref('')
+
+const popupError = ref(null)
+const oldnameIn = ref('')
+const nameIn = ref('')
+
+getTournament()
+
+function getTournament() {
+  api.get(`tournament/info/?token=${props.token}`, function(data, res) {
+    if (res) {
+      tournament.value = data.tournament[0]
+    }
+  })
+}
+
+function openPopup(name) {
+  document.getElementById(name).style.display = null
+  popupError.value = null
+}
+
+function closePopup(e) {
+  if (e.target.classList.contains('popup')) {
+    e.target.style.display = 'none'
+  }
+}
 
 function createTournament() {
   api.post(`tournament/?tournament_name=${tournamentIn.value}&token=${props.token}`, function(data, res) {
@@ -22,16 +47,63 @@ function createTournament() {
     tournament.value = data
   })
 }
+
+function updateTournament() {
+
+}
+
+function deleteTournament() {
+
+}
+
+function createTeam() {
+
+}
+
+function updateTeam(team) {
+  api.put(`team/${team}/?new_name=${nameIn.value}&token=${props.token}`, function(data, res) {
+    if (res) {
+      getTournament()
+    }
+  })
+}
+
+function deleteTeam() {
+
+}
+
+function bulkGroup() {
+
+}
+
+function createGroup() {
+
+}
+
+function updateGroup() {
+
+}
+
+function deleteGroup() {
+
+}
 </script>
 
 <template>
   <template v-if="!tournament">
     <div class="label">Du har inte skapat en turnering ännu</div>
-    <input type="text" class="full" id="tname-input" placeholder="Turneringsnamn" :value="tournamentIn" @blur="function(e) {tournamentIn = e.target.value}">
+    <input type="text" class="full" id="tname-input" placeholder="Turneringsnamn" :value="tournamentIn" @blur="e=>{tournamentIn = e.target.value}">
     <div class="full btn" @click="createTournament">Skapa Turnering</div>
     <div class="label error">{{ error }}</div>
   </template>
   <template v-else>
+    <div id="teamP" style="display: none" class="popup" @mousedown="closePopup">
+      <div>
+        <h2>Laguppgifter, {{ nameIn }}</h2>
+        <div class="label">Lagnamn:</div>
+        <input type="text" class="btn pop-input" :value="nameIn" placeholder="Lagnamn" @blur="e=>{oldnameIn = nameIn; nameIn = e.target.value; updateTeam(oldnameIn)}">
+      </div>
+    </div>
     <div class="bar">
       <h1>{{ tournament.name }}</h1>
       <svg
@@ -49,7 +121,7 @@ function createTournament() {
         <path d="M13.5 6.5l4 4" />
       </svg>
     </div>
-    <AdminDropdown @addclick="console.log('add')" @itemclick="e=>{console.log(e)}"
+    <AdminDropdown @addclick="console.log('add')" @itemclick="e=>{nameIn=e.name; openPopup('teamP')}"
       title="Lag"
       :icon="`
       <svg
@@ -71,7 +143,7 @@ function createTournament() {
         <path d='M5 14h14l-4.5 -4.5l4.5 -4.5h-14v16' />
       </svg>
       `"
-      :items="[{title:'gooba'}]"
+      :items="tournament.teams"
     />
     <AdminDropdown
       title="Grupper"
@@ -101,6 +173,7 @@ function createTournament() {
         <path d='M3 13v-1a2 2 0 0 1 2 -2h2' />
       </svg>
       `"
+      :items="tournament.groups"
     />
   </template>
 </template>

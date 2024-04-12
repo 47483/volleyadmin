@@ -1,12 +1,26 @@
 <script setup>
 import AdminDropdown from '@/components/AdminDropdown.vue'
 import {ref} from 'vue'
+import * as api from '@/assets/api.js'
+
+const props = defineProps(['user', 'token']);
 
 const tournamentIn = ref('')
-const tournament = ref('')
+const tournament = ref({name:'test'})
+const error = ref('');
 
 function createTournament() {
-
+  api.post(`tournament/?tournament_name=${tournamentIn.value}&token=${props.token}`, function(data, res) {
+    if (!res) {
+      if (data?.detail == 'User already has a tournament') {
+        error.value = 'Något gick fel, du borde inte vara här'
+        return
+      }
+      error.value = 'Kunde inte skapa turnering, försök igen senare'
+      return
+    }
+    tournament.value = data
+  })
 }
 </script>
 
@@ -15,10 +29,11 @@ function createTournament() {
     <div class="label">Du har inte skapat en turnering ännu</div>
     <input type="text" class="full" id="tname-input" placeholder="Turneringsnamn" :value="tournamentIn" @blur="function(e) {tournamentIn = e.target.value}">
     <div class="full btn" @click="createTournament">Skapa Turnering</div>
+    <div class="label error">{{ error }}</div>
   </template>
   <template v-else>
     <div class="bar">
-      <h1>{{ tournament }}</h1>
+      <h1>{{ tournament.name }}</h1>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="2rem"
@@ -102,17 +117,6 @@ function createTournament() {
 
 #return-btn:hover {
   filter: brightness(105%);
-}
-
-.bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0.25rem;
-}
-
-.bar > * {
-  margin: 0.25rem;
 }
 
 #tname-input {

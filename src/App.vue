@@ -47,7 +47,6 @@ function login() {
       popupError.value = 'Fel inloggningsuppgifter'
       return
     }
-
     user.value = userIn.value
     token.value = data.token
     sessionStorage.setItem('user', user.value)
@@ -123,7 +122,7 @@ function signup() {
             <h3>Framtida användarmöjligheter</h3>
           </div>
         </div>
-        <GroupGames />
+        <GroupGames :user="user" :token="token" />
       </template>
       <template v-else>
         <div class="label">Logga in för att kunna skapa och hantera dina egna turneringar</div>

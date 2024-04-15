@@ -11,7 +11,8 @@ const mailIn = ref('')
 const passIn = ref('')
 const passAgainIn = ref('')
 
-const popupError = ref('')
+const popupError = ref(null)
+const popupMessage = ref(null)
 
 window.onload = function() {
   const sUser = sessionStorage.getItem('user')
@@ -24,13 +25,26 @@ window.onload = function() {
 
 function openPopup(name) {
   document.getElementById(name).style.display = null
-  popupError.value = null
 }
 
 function closePopup(e) {
+  if (typeof e == 'string') {
+    if (e == '') {
+      const popups = document.getElementsByClassName('popup')
+      for (let popup of popups) {
+        popup.style.display = 'none'
+      }
+      return
+    }
+
+    document.getElementById(e).style.display = 'none'
+    return
+  }
   if (e.target.classList.contains('popup')) {
     e.target.style.display = 'none'
   }
+  popupError.value = null
+  popupMessage.value = null
 }
 
 function login() {
@@ -42,7 +56,7 @@ function login() {
     popupError.value = 'Lösenord saknas'
     return
   }
-  api.post(`user/token/?username=${userIn.value}&password=${passIn.value}`, function (data, res) {
+  api.apiPost(`user/token/?username=${userIn.value}&password=${passIn.value}`, function (data, res) {
     if (!res) {
       popupError.value = 'Fel inloggningsuppgifter'
       return
@@ -85,7 +99,7 @@ function signup() {
     popupError.value = 'Lösenorden måste matcha'
     return
   }
-  api.post(
+  api.apiPost(
     `user/?username=${userIn.value}&password=${passIn.value}&email=${mailIn.value}`,
     function (data, res) {
       if (!res) {
@@ -105,6 +119,25 @@ function signup() {
     }
   )
 }
+
+function forgotPass() {
+  if (!mailIn.value) {
+    popupError.value = 'Du behöver fylla i epost-addressen för ditt konto'
+    return
+  }
+  if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(mailIn.value)) {
+    popupError.value = 'Epost-addressen måste vara giltig'
+    return
+  }
+  api.apiPost(`user/forgot-password/?email=${mailIn.value}`, function(data, res) {
+    if (!res) {
+      popupError.value = 'Något gick fel, kontrollera din valda epost'
+      return
+    }
+
+    popupMessage.value = `Ett mejl har skickats till ${mailIn.value}`
+  })
+}
 </script>
 
 <template>
@@ -112,6 +145,22 @@ function signup() {
   <div class="cover" style="background-color: hsla(0, 0%, 0%, 0.1)" />
   <main>
     <div id="wrapper">
+      <div id="forgotP" style="display: none" class="popup" @click="closePopup">
+        <div>
+          <h3 class="label">Glömt lösenordet?</h3>
+          <div class="label">Vi skickar dig ett återställningsmejl via din epost:</div>
+          <input
+            class="btn pop-input"
+            type="text"
+            :value="mailIn"
+            @blur="e=>{mailIn = e.target.value}"
+            placeholder="minaddress@exempel.com"
+          />
+          <div v-if="popupError" class="label error">{{ popupError }}</div>
+          <div class="btn" @click="forgotPass">Skicka återställningsmejl</div>
+          <div v-if="popupMessage" class="label">{{ popupMessage }}</div>
+        </div>
+      </div>
       <template v-if="user">
         <div class="bar-two">
           <div class="btn" @click="logout">Logga ut</div>
@@ -119,7 +168,7 @@ function signup() {
         </div>
         <div id="usermanageP" style="display: none" class="popup" @click="closePopup">
           <div>
-            <h3>Framtida användarmöjligheter</h3>
+            <div>Framtida möjligheter</div>
           </div>
         </div>
         <GroupGames :user="user" :token="token" />
@@ -148,10 +197,8 @@ function signup() {
               @blur="e=>{passIn = e.target.value}"
             />
             <div class="btn" @click="login">Logga in</div>
-            <div class="label error">{{ popupError }}</div>
-            <a href="https://www.urbandictionary.com/define.php?term=skill%20issue" class="label">
-              Glömt ditt lösenord?
-            </a>
+            <div v-if="popupError" class="label error">{{ popupError }}</div>
+            <div class="label" style="text-decoration: underline; cursor: pointer;" @click="closePopup(''); openPopup('forgotP')">Glömt ditt lösenord?</div>
           </div>
         </div>
         <div id="signupP" style="display: none" class="popup" @mousedown="closePopup">
@@ -186,7 +233,7 @@ function signup() {
               @blur="e=>{passAgainIn = e.target.value}"
             />
             <div class="btn" @click="signup">Skapa konto</div>
-            <div class="label error">{{ popupError }}</div>
+            <div v-if="popupError" class="label error">{{ popupError }}</div>
           </div>
         </div>
         <div class="title" style="margin: 3rem">

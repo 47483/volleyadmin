@@ -10,13 +10,14 @@ const tournament = ref(null)
 const error = ref('')
 
 const popupError = ref(null)
-const oldnameIn = ref('')
-const nameIn = ref('')
+const popupMessage = ref(null)
+const oldTeam = ref('')
+const newTeam = ref('')
 
 getTournament()
 
 function getTournament() {
-  api.get(`tournament/info/?token=${props.token}`, function(data, res) {
+  api.apiGet(`tournament/info/?token=${props.token}`, function(data, res) {
     if (res) {
       tournament.value = data.tournament[0]
     }
@@ -29,13 +30,27 @@ function openPopup(name) {
 }
 
 function closePopup(e) {
+  if (typeof e == 'string') {
+    if (e == '') {
+      const popups = document.getElementsByClassName('popup')
+      for (let popup of popups) {
+        popup.style.display = 'none'
+      }
+      return
+    }
+
+    document.getElementById(e).style.display = 'none'
+    return
+  }
   if (e.target.classList.contains('popup')) {
     e.target.style.display = 'none'
   }
+  popupError.value = null
+  popupMessage.value = null
 }
 
 function createTournament() {
-  api.post(`tournament/?tournament_name=${tournamentIn.value}&token=${props.token}`, function(data, res) {
+  api.apiPost(`tournament/?tournament_name=${tournamentIn.value}&token=${props.token}`, function(data, res) {
     if (!res) {
       if (data?.detail == 'User already has a tournament') {
         error.value = 'Något gick fel, du borde inte vara här'
@@ -60,8 +75,8 @@ function createTeam() {
 
 }
 
-function updateTeam(team) {
-  api.put(`team/${team}/?new_name=${nameIn.value}&token=${props.token}`, function(data, res) {
+function updateTeam() {
+  api.apiPut(`team/${oldTeam.value}/?new_name=${newTeam.value}&token=${props.token}`, function(data, res) {
     if (res) {
       getTournament()
     }
@@ -69,7 +84,13 @@ function updateTeam(team) {
 }
 
 function deleteTeam() {
-
+  api.apiDelete(`team/${newTeam.value}/?token=${props.token}`, function(data, res) {
+    if (!res) {
+      //console.log(data)
+      return
+    }
+    getTournament()
+  })
 }
 
 function bulkGroup() {
@@ -99,9 +120,10 @@ function deleteGroup() {
   <template v-else>
     <div id="teamP" style="display: none" class="popup" @mousedown="closePopup">
       <div>
-        <h2>Laguppgifter, {{ nameIn }}</h2>
+        <h2>Laguppgifter, {{ newTeam }}</h2>
         <div class="label">Lagnamn:</div>
-        <input type="text" class="btn pop-input" :value="nameIn" placeholder="Lagnamn" @blur="e=>{oldnameIn = nameIn; nameIn = e.target.value; updateTeam(oldnameIn)}">
+        <input type="text" class="btn pop-input" :value="newTeam" placeholder="Lagnamn" @blur="e=>{oldTeam = newTeam; newTeam = e.target.value; updateTeam}">
+        <div class="btn" @click="deleteTeam">Ta bort {{ newTeam }}</div>
       </div>
     </div>
     <div class="bar">
@@ -121,7 +143,7 @@ function deleteGroup() {
         <path d="M13.5 6.5l4 4" />
       </svg>
     </div>
-    <AdminDropdown @addclick="console.log('add')" @itemclick="e=>{nameIn=e.name; openPopup('teamP')}"
+    <AdminDropdown @addclick="console.log('add')" @itemclick="e=>{newTeam=e.name; openPopup('teamP')}"
       title="Lag"
       :icon="`
       <svg

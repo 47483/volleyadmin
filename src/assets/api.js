@@ -1,6 +1,6 @@
 const api = 'https://volleyboll-dev-quiet-mountain-3664.fly.dev/';
 
-function get(endpoint, callback) {
+function apiGet(endpoint, callback) {
     let result = false;
 
     fetch(`${api}${endpoint}`)
@@ -15,7 +15,7 @@ function get(endpoint, callback) {
     });
 }
 
-function post(endpoint, callback) {
+function apiPost(endpoint, callback) {
     let result = false;
 
     fetch(`${api}${endpoint}`, {
@@ -33,7 +33,7 @@ function post(endpoint, callback) {
     });
 };
 
-function put(endpoint, callback) {
+function apiPut(endpoint, callback) {
     let result = false;
 
     fetch(`${api}${endpoint}`, {
@@ -51,4 +51,22 @@ function put(endpoint, callback) {
     });
 };
 
-export {get, post, put}
+function apiDelete(endpoint, callback) {
+    let result = false;
+
+    fetch(`${api}${endpoint}`, {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
+    })
+    .then(response => {
+        if (response.ok) {
+            result = true;
+        };
+        return response.json();
+    })
+    .then(data => {
+        callback(data, result);
+    });
+};
+
+export {apiGet, apiPost, apiPut, apiDelete}

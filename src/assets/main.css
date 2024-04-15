@@ -47,6 +47,8 @@
 .pop-input {
   background-color: white;
   border: 0;
+  width: calc(100% - 1rem);
+  box-sizing: border-box;
 }
 
 .error {

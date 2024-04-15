@@ -11,8 +11,8 @@ const error = ref('')
 
 const popupError = ref(null)
 const popupMessage = ref(null)
-const oldTeam = ref('')
-const newTeam = ref('')
+const teamIn = ref('')
+const team = ref('')
 
 getTournament()
 
@@ -25,8 +25,10 @@ function getTournament() {
 }
 
 function openPopup(name) {
-  document.getElementById(name).style.display = null
+  closePopup('')
   popupError.value = null
+  popupMessage.value = null
+  document.getElementById(name).style.display = null
 }
 
 function closePopup(e) {
@@ -45,8 +47,6 @@ function closePopup(e) {
   if (e.target.classList.contains('popup')) {
     e.target.style.display = 'none'
   }
-  popupError.value = null
-  popupMessage.value = null
 }
 
 function createTournament() {
@@ -72,24 +72,40 @@ function deleteTournament() {
 }
 
 function createTeam() {
-
+  if (teamIn.value == '') {
+    popupError.value = 'Laget måste ha ett namn'
+    return
+  }
+  api.apiPost(`team/?team_name=${teamIn.value}&token=${props.token}`, function(data, res) {
+    if (!res) {
+      popupError.value = 'Något gick fel'
+      return
+    }
+    getTournament()
+    closePopup('')
+  })
 }
 
 function updateTeam() {
-  api.apiPut(`team/${oldTeam.value}/?new_name=${newTeam.value}&token=${props.token}`, function(data, res) {
-    if (res) {
-      getTournament()
+  api.apiPut(`team/${team.value}/?new_name=${teamIn.value}&token=${props.token}`, function(data, res) {
+    if (!res) {
+      popupError.value = 'Något gick fel'
+      return
     }
+    team.value = teamIn.value
+    getTournament()
+    closePopup('')
   })
 }
 
 function deleteTeam() {
-  api.apiDelete(`team/${newTeam.value}/?token=${props.token}`, function(data, res) {
+  api.apiDelete(`team/?token=${props.token}&team_name=${team.value}`, function(data, res) {
     if (!res) {
-      //console.log(data)
+      popupError.value = 'Något gick fel'
       return
     }
     getTournament()
+    closePopup('')
   })
 }
 
@@ -115,15 +131,25 @@ function deleteGroup() {
     <div class="label">Du har inte skapat en turnering ännu</div>
     <input type="text" class="full" id="tname-input" placeholder="Turneringsnamn" :value="tournamentIn" @blur="e=>{tournamentIn = e.target.value}">
     <div class="full btn" @click="createTournament">Skapa Turnering</div>
-    <div class="label error">{{ error }}</div>
+    <div v-if="error" class="label error">{{ error }}</div>
   </template>
   <template v-else>
+    <div id="createteamP" style="display: none;" class="popup" @mousedown="closePopup">
+      <div>
+        <h3>Skapa lag</h3>
+        <input type="text" class="btn pop-input" placeholder="Lagnamn" @blur="e=>{teamIn = e.target.value}">
+        <div v-if="popupError" class="label error">{{ popupError }}</div>
+        <div class="btn" @click="createTeam">Skapa lag</div>
+      </div>
+    </div>
     <div id="teamP" style="display: none" class="popup" @mousedown="closePopup">
       <div>
-        <h2>Laguppgifter, {{ newTeam }}</h2>
+        <h3>Laguppgifter, {{ team }}</h3>
         <div class="label">Lagnamn:</div>
-        <input type="text" class="btn pop-input" :value="newTeam" placeholder="Lagnamn" @blur="e=>{oldTeam = newTeam; newTeam = e.target.value; updateTeam}">
-        <div class="btn" @click="deleteTeam">Ta bort {{ newTeam }}</div>
+        <input type="text" class="btn pop-input" :value="team" placeholder="Lagnamn" @blur="e=>{teamIn = e.target.value}">
+        <div class="btn" @click="updateTeam">Spara</div>
+        <div class="btn" @click="deleteTeam">Ta bort {{ team }}</div>
+        <div v-if="popupError" class="label error">{{ popupError }}</div>
       </div>
     </div>
     <div class="bar">
@@ -143,7 +169,7 @@ function deleteGroup() {
         <path d="M13.5 6.5l4 4" />
       </svg>
     </div>
-    <AdminDropdown @addclick="console.log('add')" @itemclick="e=>{newTeam=e.name; openPopup('teamP')}"
+    <AdminDropdown @addclick="openPopup('createteamP')" @itemclick="e=>{team=e.name; openPopup('teamP')}"
       title="Lag"
       :icon="`
       <svg
@@ -197,6 +223,7 @@ function deleteGroup() {
       `"
       :items="tournament.groups"
     />
+    <div class="full btn">Gruppera lag slumpmässigt</div>
   </template>
 </template>
 

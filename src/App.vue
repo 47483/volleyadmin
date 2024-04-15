@@ -26,9 +26,9 @@ window.onload = function () {
 
 function openPopup(name) {
   closePopup('')
+  document.getElementById(name).style.display = null
   popupError.value = null
   popupMessage.value = null
-  document.getElementById(name).style.display = null
 }
 
 function closePopup(e) {

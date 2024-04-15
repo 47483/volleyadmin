@@ -59,7 +59,6 @@ function toggleMinimized() {
 .dropdown-title {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   border-radius: 1rem;
 }
 

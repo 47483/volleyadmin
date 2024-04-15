@@ -193,6 +193,7 @@ function deleteGroup() {
       `"
       :items="tournament.teams"
     />
+    <div class="full btn">Gruppera lag slumpmässigt</div>
     <AdminDropdown
       title="Grupper"
       :icon="`
@@ -223,7 +224,6 @@ function deleteGroup() {
       `"
       :items="tournament.groups"
     />
-    <div class="full btn">Gruppera lag slumpmässigt</div>
   </template>
 </template>
 

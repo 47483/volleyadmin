@@ -103,7 +103,6 @@ function toggleMinimized() {
   margin: 0.25rem;
   padding: 1.25rem;
   border-radius: 0.5rem;
-  font-weight: bold;
 }
 
 .btn {

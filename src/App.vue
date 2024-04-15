@@ -6,6 +6,7 @@ import * as api from '@/assets/api.js'
 const user = ref(null)
 const token = ref(null)
 
+const extraIn = ref('')
 const userIn = ref('')
 const mailIn = ref('')
 const passIn = ref('')
@@ -14,16 +15,19 @@ const passAgainIn = ref('')
 const popupError = ref(null)
 const popupMessage = ref(null)
 
-window.onload = function() {
+window.onload = function () {
   const sUser = sessionStorage.getItem('user')
   const sToken = sessionStorage.getItem('token')
   if (sUser && sToken) {
     user.value = sUser
     token.value = sToken
   }
-};
+}
 
 function openPopup(name) {
+  closePopup('')
+  popupError.value = null
+  popupMessage.value = null
   document.getElementById(name).style.display = null
 }
 
@@ -43,8 +47,6 @@ function closePopup(e) {
   if (e.target.classList.contains('popup')) {
     e.target.style.display = 'none'
   }
-  popupError.value = null
-  popupMessage.value = null
 }
 
 function login() {
@@ -56,16 +58,19 @@ function login() {
     popupError.value = 'Lösenord saknas'
     return
   }
-  api.apiPost(`user/token/?username=${userIn.value}&password=${passIn.value}`, function (data, res) {
-    if (!res) {
-      popupError.value = 'Fel inloggningsuppgifter'
-      return
+  api.apiPost(
+    `user/token/?username=${userIn.value}&password=${passIn.value}`,
+    function (data, res) {
+      if (!res) {
+        popupError.value = 'Fel inloggningsuppgifter'
+        return
+      }
+      user.value = userIn.value
+      token.value = data.token
+      sessionStorage.setItem('user', user.value)
+      sessionStorage.setItem('token', token.value)
     }
-    user.value = userIn.value
-    token.value = data.token
-    sessionStorage.setItem('user', user.value)
-    sessionStorage.setItem('token', token.value)
-  })
+  )
 }
 
 function logout() {
@@ -129,13 +134,74 @@ function forgotPass() {
     popupError.value = 'Epost-addressen måste vara giltig'
     return
   }
-  api.apiPost(`user/forgot-password/?email=${mailIn.value}`, function(data, res) {
+  api.apiPost(`user/forgot-password/?email=${mailIn.value}`, function (data, res) {
     if (!res) {
       popupError.value = 'Något gick fel, kontrollera din valda epost'
       return
     }
 
     popupMessage.value = `Ett mejl har skickats till ${mailIn.value}`
+  })
+}
+
+function updateUsername() {
+  if (!userIn.value) {
+    popupError.value = 'Du måste fylla i ett användarnamn'
+    return
+  }
+  api.apiPut(
+    `user/username/${user.value}/?new_username=${userIn.value}&token=${token.value}`,
+    function (data, res) {
+      if (!res) {
+        if (data?.detail == 'Username already exists') {
+          popupError.value = 'Användarnamnet används redan'
+          return
+        }
+      }
+      user.value = userIn.value
+      sessionStorage.setItem('user', user.value)
+      closePopup('')
+    }
+  )
+}
+
+function updatePassword() {
+  if (!extraIn.value) {
+    popupError.value = 'Du måste fylla i det gamla lösenordet'
+    return
+  }
+  if (!passIn.value) {
+    popupError.value = 'Nytt lösenord saknas'
+    return
+  }
+  if (!passAgainIn.value) {
+    popupError.value = 'Du måste fylla i det nya lösenordet igen'
+    return
+  }
+  if (passIn.value !== passAgainIn.value) {
+    popupError.value = 'Lösenorden måste matcha'
+    return
+  }
+  api.apiPut(
+    `user/password/${user.value}/?current_password=${extraIn.value}&new_password=${passIn.value}&token=${token.value}`,
+    function (data, res) {
+      if (!res) {
+        popupError.value = 'Något gick fel'
+        return
+      }
+      closePopup('')
+    }
+  )
+}
+
+function deleteUser() {
+  api.apiDelete(`user/${user.value}/?token=${token.value}`, function(data, res) {
+    if (!res) {
+      popupError.value = 'Något gick fel'
+      return
+    }
+    closePopup('')
+    logout()
   })
 }
 </script>
@@ -153,8 +219,12 @@ function forgotPass() {
             class="btn pop-input"
             type="text"
             :value="mailIn"
-            @blur="e=>{mailIn = e.target.value}"
-            placeholder="minaddress@exempel.com"
+            @blur="
+              (e) => {
+                mailIn = e.target.value
+              }
+            "
+            placeholder="minmail@exempel.com"
           />
           <div v-if="popupError" class="label error">{{ popupError }}</div>
           <div class="btn" @click="forgotPass">Skicka återställningsmejl</div>
@@ -168,7 +238,78 @@ function forgotPass() {
         </div>
         <div id="usermanageP" style="display: none" class="popup" @click="closePopup">
           <div>
-            <div>Framtida möjligheter</div>
+            <h3>Uppgifter för {{ user }}</h3>
+            <div class="btn" @click="openPopup('updateusernameP')">Byt användarnamn</div>
+            <div class="btn" @click="openPopup('updatepasswordP')">Ändra lösenord</div>
+            <div class="btn" @click="openPopup('deleteaccountP')">Radera konto</div>
+          </div>
+        </div>
+        <div id="updateusernameP" style="display: none" class="popup" @click="closePopup">
+          <div>
+            <h3>Skapa nytt användarnamn</h3>
+            <div class="label">Nytt användarnamn:</div>
+            <input
+              class="btn pop-input"
+              type="text"
+              @blur="
+                (e) => {
+                  userIn = e.target.value
+                }
+              "
+              placeholder="Användarnamn"
+            />
+            <div v-if="popupError" class="label error">{{ popupError }}</div>
+            <div class="btn" @click="updateUsername">Spara</div>
+          </div>
+        </div>
+        <div id="updatepasswordP" style="display: none" class="popup" @click="closePopup">
+          <div>
+            <h3>Ändra lösenord</h3>
+            <div class="label">Nuvarande lösenord:</div>
+            <input
+              class="btn pop-input"
+              type="password"
+              @blur="
+                (e) => {
+                  extraIn = e.target.value
+                }
+              "
+              placeholder="Nuvarande lösenord"
+            />
+            <div class="label">Nytt lösenord:</div>
+            <input
+              class="btn pop-input"
+              type="password"
+              @blur="
+                (e) => {
+                  passIn = e.target.value
+                }
+              "
+              placeholder="Lösenord"
+            />
+            <div class="label">Nytt lösenord (igen):</div>
+            <input
+              class="btn pop-input"
+              type="password"
+              @blur="
+                (e) => {
+                  passAgainIn = e.target.value
+                }
+              "
+              placeholder="Lösenord (igen)"
+            />
+            <div v-if="popupError" class="label error">{{ popupError }}</div>
+            <div class="btn" @click="updatePassword">Spara</div>
+          </div>
+        </div>
+        <div id="deleteaccountP" style="display: none" class="popup" @click="closePopup">
+          <div>
+            <h3>Radera konto</h3>
+            <div class="label">Är du säker på att du vill ta bort användaren "{{ user }}"?</div>
+            <div class="label">Igenom att trycka på knappen "JA" tas ditt konto och all relaterad information om din användare bort permanent.</div>
+            <div v-if="popupError" class="label error">{{ popupError }}</div>
+            <div class="btn" @click="deleteUser">JA</div>
+            <div class="btn" @click="closePopup('')">NEJ</div>
           </div>
         </div>
         <GroupGames :user="user" :token="token" />
@@ -187,18 +328,34 @@ function forgotPass() {
               class="btn pop-input"
               type="text"
               :value="userIn"
-              @blur="e=>{userIn = e.target.value}"
+              @blur="
+                (e) => {
+                  userIn = e.target.value
+                }
+              "
+              placeholder="Användarnamn"
             />
             <div class="label">Lösenord:</div>
             <input
               class="btn pop-input"
               type="password"
               :value="passIn"
-              @blur="e=>{passIn = e.target.value}"
+              @blur="
+                (e) => {
+                  passIn = e.target.value
+                }
+              "
+              placeholder="Lösenord"
             />
             <div class="btn" @click="login">Logga in</div>
             <div v-if="popupError" class="label error">{{ popupError }}</div>
-            <div class="label" style="text-decoration: underline; cursor: pointer;" @click="closePopup(''); openPopup('forgotP')">Glömt ditt lösenord?</div>
+            <div
+              class="label"
+              style="text-decoration: underline; cursor: pointer"
+              @click="openPopup('forgotP')"
+            >
+              Glömt ditt lösenord?
+            </div>
           </div>
         </div>
         <div id="signupP" style="display: none" class="popup" @mousedown="closePopup">
@@ -209,28 +366,48 @@ function forgotPass() {
               class="btn pop-input"
               type="text"
               :value="userIn"
-              @blur="e=>{userIn = e.target.value}"
+              @blur="
+                (e) => {
+                  userIn = e.target.value
+                }
+              "
+              placeholder="Användarnamn"
             />
             <div class="label">Epost:</div>
             <input
               class="btn pop-input"
               type="text"
               :value="mailIn"
-              @blur="e=>{mailIn = e.target.value}"
+              @blur="
+                (e) => {
+                  mailIn = e.target.value
+                }
+              "
+              placeholder="Epost"
             />
             <div class="label">Lösenord:</div>
             <input
               class="btn pop-input"
               type="password"
               :value="passIn"
-              @blur="e=>{passIn = e.target.value}"
+              @blur="
+                (e) => {
+                  passIn = e.target.value
+                }
+              "
+              placeholder="Lösenord"
             />
             <div class="label">Lösenord (igen):</div>
             <input
               class="btn pop-input"
               type="password"
               :value="passAgainIn"
-              @blur="e=>{passAgainIn = e.target.value}"
+              @blur="
+                (e) => {
+                  passAgainIn = e.target.value
+                }
+              "
+              placeholder="Lösenord (igen)"
             />
             <div class="btn" @click="signup">Skapa konto</div>
             <div v-if="popupError" class="label error">{{ popupError }}</div>

@@ -15,7 +15,7 @@ function toggleMinimized() {
 </script>
 
 <template>
-  <div class="dropdown" :style="minimized ? 'height: 4rem;' : ''">
+  <div id="dropdown" :style="minimized ? 'height: 4rem;' : ''">
     <div class="dropdown-title" @click="toggleMinimized">
       <h2>{{ props.title ? props.title : 'Unnamed' }}<span>{{ props.items?.length ? ` ( ${props.items.length} )` : '' }}</span></h2>
       <div v-html="props.icon" class="dropdown-icon" />
@@ -46,7 +46,7 @@ function toggleMinimized() {
 </template>
 
 <style scoped>
-.dropdown {
+#dropdown {
   width: 100%;
   background-color: hsl(0, 0%, 40%);
   text-align: center;
@@ -54,6 +54,7 @@ function toggleMinimized() {
   border-radius: 1rem;
   margin: 0.5rem;
   overflow: hidden;
+  transition: height 0.125s ease-in-out;
 }
 
 .dropdown-title {

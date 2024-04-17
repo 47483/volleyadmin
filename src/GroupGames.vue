@@ -7,14 +7,17 @@ const props = defineProps(['user', 'token'])
 
 const tournamentIn = ref('')
 const tournament = ref(null)
-const error = ref('')
 
+const error = ref('')
 const popupError = ref('')
 const popupMessage = ref('')
+
 const teamIn = ref('')
 const team = ref('')
 
-const groupAmount = ref(null)
+const groupAmount = ref(2)
+const group = ref('')
+const groupIn = ref('')
 
 getTournament()
 
@@ -143,6 +146,10 @@ function deleteTeam() {
 }
 
 function bulkGroup() {
+  if (groupAmount.value < 1 || groupAmount.value > Math.floor(tournament.value.teams.length * 0.5)) {
+    return
+  }
+
   api.apiPost(
     `group/bulk/?num_groups=${groupAmount.value}&token=${props.token}`,
     function (data, res) {
@@ -181,7 +188,8 @@ function deleteGroup() {}
   <template v-else>
     <div id="createteamP" style="display: none" class="popup" @mousedown="closePopup">
       <div>
-        <h2>Skapa lag</h2>
+        <h2>Skapa nytt lag</h2>
+        <div class="label">Lagnamn:</div>
         <input
           type="text"
           class="btn pop-input"
@@ -234,6 +242,29 @@ function deleteGroup() {}
         <div class="btn" @click="updateTournament">Spara</div>
         <div class="btn" @click="deleteTournament">Ta bort {{ tournament.name }}</div>
         <div v-if="popupError" class="label error">{{ popupError }}</div>
+      </div>
+    </div>
+    <div id="creategroupP" style="display: none" class="popup" @mousedown="closePopup">
+      <div>
+        <h2>Skapa ny grupp</h2>
+        <div class="label">Gruppnamn:</div>
+        <input
+          type="text"
+          class="btn pop-input"
+          placeholder="Gruppnamn"
+          @blur="
+            (e) => {
+              teamIn = e.target.value
+            }
+          "
+        />
+        <div v-if="popupError" class="label error">{{ popupError }}</div>
+        <div class="btn" @click="createGroup">Skapa grupp</div>
+      </div>
+    </div>
+    <div id="groupP" style="display: none" class="popup" @mousedown="closePopup">
+      <div>
+        <h2>Gruppöversikt, {{ group }}</h2>
       </div>
     </div>
     <div id="tournament-edit" class="bar" @click="openPopup('tournamentP')">
@@ -292,6 +323,7 @@ function deleteGroup() {}
         type="number"
         placeholder="Antal"
         min="1"
+        value="2"
         :max="Math.floor(tournament.teams.length * 0.5)"
         @blur="
           (e) => {
@@ -307,6 +339,13 @@ function deleteGroup() {}
       />
     </div>
     <AdminDropdown
+      @addclick="openPopup('creategroupP')"
+      @itemclick="
+        (e) => {
+          group = e.name
+          openPopup('groupP')
+        }
+      "
       title="Grupper"
       :icon="`
       <svg

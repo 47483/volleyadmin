@@ -1,6 +1,6 @@
 <script setup>
 import AdminDropdown from '@/components/AdminDropdown.vue'
-import {ref} from 'vue'
+import { ref } from 'vue'
 import * as api from '@/assets/api.js'
 
 const props = defineProps(['user', 'token'])
@@ -14,10 +14,12 @@ const popupMessage = ref('')
 const teamIn = ref('')
 const team = ref('')
 
+const groupAmount = ref(null)
+
 getTournament()
 
 function getTournament() {
-  api.apiGet(`tournament/info/?token=${props.token}`, function(data, res) {
+  api.apiGet(`tournament/info/?token=${props.token}`, function (data, res) {
     if (res) {
       tournament.value = data.tournament[0]
     }
@@ -50,17 +52,20 @@ function closePopup(e) {
 }
 
 function createTournament() {
-  api.apiPost(`tournament/?tournament_name=${tournamentIn.value}&token=${props.token}`, function(data, res) {
-    if (!res) {
-      if (data?.detail == 'User already has a tournament') {
-        error.value = 'Något gick fel, du borde inte vara här'
+  api.apiPost(
+    `tournament/?tournament_name=${tournamentIn.value}&token=${props.token}`,
+    function (data, res) {
+      if (!res) {
+        if (data?.detail == 'User already has a tournament') {
+          error.value = 'Något gick fel, du borde inte vara här'
+          return
+        }
+        error.value = 'Kunde inte skapa turnering, försök igen senare'
         return
       }
-      error.value = 'Kunde inte skapa turnering, försök igen senare'
-      return
+      tournament.value = data
     }
-    tournament.value = data
-  })
+  )
 }
 
 function updateTournament() {
@@ -68,22 +73,25 @@ function updateTournament() {
     popupError.value = 'Turneringen måste ha ett namn'
     return
   }
-  api.apiPut(`tournament/${tournament.value.name}/?new_tournament_name=${tournamentIn.value}&token=${props.token}`, function(data, res) {
-    if (!res) {
-      if (data.detail == 'Tournament name already exists') {
-        popupError.value = 'Turneringsnamnet används redan'
+  api.apiPut(
+    `tournament/${tournament.value.name}/?new_tournament_name=${tournamentIn.value}&token=${props.token}`,
+    function (data, res) {
+      if (!res) {
+        if (data.detail == 'Tournament name already exists') {
+          popupError.value = 'Turneringsnamnet används redan'
+          return
+        }
+        popupError.value = 'Något gick fel'
         return
       }
-      popupError.value = 'Något gick fel'
-      return
+      getTournament()
+      closePopup('')
     }
-    getTournament()
-    closePopup('')
-  })
+  )
 }
 
 function deleteTournament() {
-  api.apiDelete(`tournament/${tournament.value.name}/?token=${props.token}`, function(data, res) {
+  api.apiDelete(`tournament/${tournament.value.name}/?token=${props.token}`, function (data, res) {
     if (!res) {
       popupError.value = 'Något gick fel'
       return
@@ -98,7 +106,7 @@ function createTeam() {
     popupError.value = 'Laget måste ha ett namn'
     return
   }
-  api.apiPost(`team/?team_name=${teamIn.value}&token=${props.token}`, function(data, res) {
+  api.apiPost(`team/?team_name=${teamIn.value}&token=${props.token}`, function (data, res) {
     if (!res) {
       popupError.value = 'Något gick fel'
       return
@@ -109,19 +117,22 @@ function createTeam() {
 }
 
 function updateTeam() {
-  api.apiPut(`team/${team.value}/?new_name=${teamIn.value}&token=${props.token}`, function(data, res) {
-    if (!res) {
-      popupError.value = 'Något gick fel'
-      return
+  api.apiPut(
+    `team/${team.value}/?new_name=${teamIn.value}&token=${props.token}`,
+    function (data, res) {
+      if (!res) {
+        popupError.value = 'Något gick fel'
+        return
+      }
+      team.value = teamIn.value
+      getTournament()
+      closePopup('')
     }
-    team.value = teamIn.value
-    getTournament()
-    closePopup('')
-  })
+  )
 }
 
 function deleteTeam() {
-  api.apiDelete(`team/?token=${props.token}&team_name=${team.value}`, function(data, res) {
+  api.apiDelete(`team/?token=${props.token}&team_name=${team.value}`, function (data, res) {
     if (!res) {
       popupError.value = 'Något gick fel'
       return
@@ -132,34 +143,55 @@ function deleteTeam() {
 }
 
 function bulkGroup() {
-
+  api.apiPost(
+    `group/bulk/?num_groups=${groupAmount.value}&token=${props.token}`,
+    function (data, res) {
+      if (res) {
+        getTournament()
+      }
+    }
+  )
 }
 
-function createGroup() {
+function createGroup() {}
 
-}
+function updateGroup() {}
 
-function updateGroup() {
-
-}
-
-function deleteGroup() {
-
-}
+function deleteGroup() {}
 </script>
 
 <template>
   <template v-if="!tournament">
     <div class="label">Du har inte skapat en turnering ännu</div>
-    <input type="text" class="full" id="tname-input" placeholder="Turneringsnamn" :value="tournamentIn" @blur="e=>{tournamentIn = e.target.value}">
+    <input
+      type="text"
+      class="full"
+      id="tname-input"
+      placeholder="Turneringsnamn"
+      :value="tournamentIn"
+      @blur="
+        (e) => {
+          tournamentIn = e.target.value
+        }
+      "
+    />
     <div class="full btn" @click="createTournament">Skapa Turnering</div>
     <div v-if="error" class="label error">{{ error }}</div>
   </template>
   <template v-else>
-    <div id="createteamP" style="display: none;" class="popup" @mousedown="closePopup">
+    <div id="createteamP" style="display: none" class="popup" @mousedown="closePopup">
       <div>
         <h2>Skapa lag</h2>
-        <input type="text" class="btn pop-input" placeholder="Lagnamn" @blur="e=>{teamIn = e.target.value}">
+        <input
+          type="text"
+          class="btn pop-input"
+          placeholder="Lagnamn"
+          @blur="
+            (e) => {
+              teamIn = e.target.value
+            }
+          "
+        />
         <div v-if="popupError" class="label error">{{ popupError }}</div>
         <div class="btn" @click="createTeam">Skapa lag</div>
       </div>
@@ -168,7 +200,17 @@ function deleteGroup() {
       <div>
         <h2>Laguppgifter, {{ team }}</h2>
         <div class="label">Lagnamn:</div>
-        <input type="text" class="btn pop-input" :value="team" placeholder="Lagnamn" @blur="e=>{teamIn = e.target.value}">
+        <input
+          type="text"
+          class="btn pop-input"
+          :value="team"
+          placeholder="Lagnamn"
+          @blur="
+            (e) => {
+              teamIn = e.target.value
+            }
+          "
+        />
         <div class="btn" @click="updateTeam">Spara</div>
         <div class="btn" @click="deleteTeam">Ta bort {{ team }}</div>
         <div v-if="popupError" class="label error">{{ popupError }}</div>
@@ -178,7 +220,17 @@ function deleteGroup() {
       <div>
         <h2>{{ tournament.name }}</h2>
         <div class="label">Turneringsnamn:</div>
-        <input type="text" class="btn pop-input" :value="tournament.name" placeholder="Turneringsnamn" @blur="e=>{tournamentIn = e.target.value}">
+        <input
+          type="text"
+          class="btn pop-input"
+          :value="tournament.name"
+          placeholder="Turneringsnamn"
+          @blur="
+            (e) => {
+              tournamentIn = e.target.value
+            }
+          "
+        />
         <div class="btn" @click="updateTournament">Spara</div>
         <div class="btn" @click="deleteTournament">Ta bort {{ tournament.name }}</div>
         <div v-if="popupError" class="label error">{{ popupError }}</div>
@@ -201,7 +253,14 @@ function deleteGroup() {
         <path d="M13.5 6.5l4 4" />
       </svg>
     </div>
-    <AdminDropdown @addclick="openPopup('createteamP')" @itemclick="e=>{team=e.name; openPopup('teamP')}"
+    <AdminDropdown
+      @addclick="openPopup('createteamP')"
+      @itemclick="
+        (e) => {
+          team = e.name
+          openPopup('teamP')
+        }
+      "
       title="Lag"
       :icon="`
       <svg
@@ -225,7 +284,28 @@ function deleteGroup() {
       `"
       :items="tournament.teams"
     />
-    <div class="btn">Gruppera lag slumpmässigt</div>
+    <div class="full bar">
+      <div class="btn" style="flex-grow: 1" @click="bulkGroup">Slumpmässig gruppering</div>
+      <input
+        id="group-amount"
+        class="btn"
+        type="number"
+        placeholder="Antal"
+        min="1"
+        :max="Math.floor(tournament.teams.length * 0.5)"
+        @blur="
+          (e) => {
+            if (e.target.value < 1) {
+              e.target.value = 1
+            }
+            if (e.target.value > Math.floor(tournament.teams.length * 0.5)) {
+              e.target.value = Math.floor(tournament.teams.length * 0.5)
+            }
+            groupAmount = e.target.value
+          }
+        "
+      />
+    </div>
     <AdminDropdown
       title="Grupper"
       :icon="`
@@ -283,5 +363,14 @@ function deleteGroup() {
 
 #tournament-edit {
   cursor: pointer;
+}
+
+#group-amount {
+  text-align: center;
+  background-color: white;
+  border: 0;
+  width: 6rem;
+  height: calc(100% - 1rem);
+  box-sizing: border-box;
 }
 </style>

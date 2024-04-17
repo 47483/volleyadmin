@@ -86,7 +86,7 @@ function toggleMinimized() {
   justify-content: center;
   background-color: hsl(0, 0%, 35%);
   margin: 0.5rem;
-  padding: 0.75rem;
+  padding: 1.25rem;
   border-radius: 0.5rem;
 }
 

@@ -12,6 +12,9 @@ function apiGet(endpoint, callback) {
     })
     .then(data => {
         callback(data, result);
+    })
+    .catch(err => {
+        callback(err, result)
     });
 }
 
@@ -30,6 +33,9 @@ function apiPost(endpoint, callback) {
     })
     .then(data => {
         callback(data, result);
+    })
+    .catch(err => {
+        callback(err, result)
     });
 };
 
@@ -48,6 +54,9 @@ function apiPut(endpoint, callback) {
     })
     .then(data => {
         callback(data, result);
+    })
+    .catch(err => {
+        callback(err, result)
     });
 };
 
@@ -66,6 +75,9 @@ function apiDelete(endpoint, callback) {
     })
     .then(data => {
         callback(data, result);
+    })
+    .catch(err => {
+        callback(err, result)
     });
 };
 

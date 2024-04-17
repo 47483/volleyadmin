@@ -213,7 +213,7 @@ function deleteUser() {
     <div id="wrapper">
       <div id="forgotP" style="display: none" class="popup" @click="closePopup">
         <div>
-          <h3 class="label">Glömt lösenordet?</h3>
+          <h2 class="label">Glömt lösenordet?</h2>
           <div class="label">Vi skickar dig ett återställningsmejl via din epost:</div>
           <input
             class="btn pop-input"
@@ -238,7 +238,7 @@ function deleteUser() {
         </div>
         <div id="usermanageP" style="display: none" class="popup" @click="closePopup">
           <div>
-            <h3>Uppgifter för {{ user }}</h3>
+            <h2>Uppgifter för {{ user }}</h2>
             <div class="btn" @click="openPopup('updateusernameP')">Byt användarnamn</div>
             <div class="btn" @click="openPopup('updatepasswordP')">Ändra lösenord</div>
             <div class="btn" @click="openPopup('deleteaccountP')">Radera konto</div>
@@ -246,7 +246,7 @@ function deleteUser() {
         </div>
         <div id="updateusernameP" style="display: none" class="popup" @click="closePopup">
           <div>
-            <h3>Skapa nytt användarnamn</h3>
+            <h2>Skapa nytt användarnamn</h2>
             <div class="label">Nytt användarnamn:</div>
             <input
               class="btn pop-input"
@@ -264,7 +264,7 @@ function deleteUser() {
         </div>
         <div id="updatepasswordP" style="display: none" class="popup" @click="closePopup">
           <div>
-            <h3>Ändra lösenord</h3>
+            <h2>Ändra lösenord</h2>
             <div class="label">Nuvarande lösenord:</div>
             <input
               class="btn pop-input"
@@ -304,7 +304,7 @@ function deleteUser() {
         </div>
         <div id="deleteaccountP" style="display: none" class="popup" @click="closePopup">
           <div>
-            <h3>Radera konto</h3>
+            <h2>Radera konto</h2>
             <div class="label">Är du säker på att du vill ta bort användaren "{{ user }}"?</div>
             <div class="label">Igenom att trycka på knappen "JA" tas ditt konto och all relaterad information om din användare bort permanent.</div>
             <div v-if="popupError" class="label error">{{ popupError }}</div>
@@ -322,7 +322,7 @@ function deleteUser() {
         </div>
         <div id="loginP" style="display: none" class="popup" @mousedown="closePopup">
           <div>
-            <h3>Välkommen tillbaka!</h3>
+            <h2>Välkommen tillbaka!</h2>
             <div class="label">Användarnamn:</div>
             <input
               class="btn pop-input"
@@ -360,7 +360,7 @@ function deleteUser() {
         </div>
         <div id="signupP" style="display: none" class="popup" @mousedown="closePopup">
           <div>
-            <h3>Välkommen till VBT!</h3>
+            <h2>Välkommen till VBT!</h2>
             <div class="label">Användarnamn:</div>
             <input
               class="btn pop-input"

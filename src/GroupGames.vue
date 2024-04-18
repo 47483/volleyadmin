@@ -88,7 +88,6 @@ function updateTournament() {
         return
       }
       getTournament()
-      closePopup('')
     }
   )
 }
@@ -129,7 +128,6 @@ function updateTeam() {
       }
       team.value = teamIn.value
       getTournament()
-      closePopup('')
     }
   )
 }
@@ -146,7 +144,10 @@ function deleteTeam() {
 }
 
 function bulkGroup() {
-  if (groupAmount.value < 1 || groupAmount.value > Math.floor(tournament.value.teams.length * 0.5)) {
+  if (
+    groupAmount.value < 1 ||
+    groupAmount.value > Math.floor(tournament.value.teams.length * 0.5)
+  ) {
     return
   }
 
@@ -160,11 +161,67 @@ function bulkGroup() {
   )
 }
 
-function createGroup() {}
+function createGroup() {
+  if (!groupIn.value) {
+    popupError.value = 'Gruppen måste ha ett namn'
+    return
+  }
+  api.apiPost(`group/?group_name=${groupIn.value}&token=${props.token}`, function(data, res) {
+    if (!res) {
+      //WIP
+      console.log(data)
+      return
+    }
+    getTournament()
+    closePopup('')
+  })
+}
 
-function updateGroup() {}
+function updateGroup() {
+  if (!groupIn.value) {
+    popupError.value = 'Gruppen måste ha ett namn'
+    return
+  }
+  api.apiPut(`group/${group.value}/?new_group_name=${groupIn.value}&token=${props.token}`, function(data, res) {
+    if (!res) {
+        //WIP
+        console.log(data)
+      return
+    }
+    group.value = groupIn.value
+    getTournament()
+  })
+}
 
-function deleteGroup() {}
+function deleteGroup() {
+  api.apiDelete(`group/${group.value}/?token=${props.token}`, function(data, res) {
+    if (!res) {
+      popupError.value = 'Något gick fel'
+      return
+    }
+    getTournament()
+    closePopup('')
+  })
+}
+
+function groupTeamStatus(t) {
+  if (tournament.value.groups.find((i) => i.name == group.value)?.teams.find((i) => i.name == t)) {
+    return 'background-color:hsl(100,50%,50%); border: 0.125rem solid hsl(100,50%,50%);'
+  }
+  return 'background-color:unset; border: 0.125rem solid hsl(0,0%,100%);'
+}
+
+function inOtherGroup(t) {
+  if (tournament.value.groups.find((i) => i.name == group.value)?.teams.find((i) => i.name == t)) {
+    return false
+  }
+  for (let g of tournament.value.groups) {
+    if (g.teams.find((i) => i.name == t)) {
+      return true
+    }
+  }
+  return false
+}
 </script>
 
 <template>
@@ -254,7 +311,7 @@ function deleteGroup() {}
           placeholder="Gruppnamn"
           @blur="
             (e) => {
-              teamIn = e.target.value
+              groupIn = e.target.value
             }
           "
         />
@@ -265,6 +322,30 @@ function deleteGroup() {}
     <div id="groupP" style="display: none" class="popup" @mousedown="closePopup">
       <div>
         <h2>Gruppöversikt, {{ group }}</h2>
+        <div class="label">Gruppnamn:</div>
+        <input
+          type="text"
+          class="btn pop-input"
+          :value="group"
+          placeholder="Gruppnamn"
+          @blur="
+            (e) => {
+              groupIn = e.target.value
+            }
+          "
+        />
+        <div class="btn" @click="updateGroup">Spara</div>
+        <div class="btn" @click="deleteGroup">Ta bort {{ group }}</div>
+        <div class="label">Medvalda lag:</div>
+        <div class="bar" id="group-teams">
+          <template
+            v-for="t in tournament.teams" :key="t.name">
+            <div v-if="!inOtherGroup(t.name)" :style="groupTeamStatus(t.name)">
+              {{ t.name }}
+            </div>
+          </template>
+        </div>
+        <div v-if="popupError" class="label error">{{ popupError }}</div>
       </div>
     </div>
     <div id="tournament-edit" class="bar" @click="openPopup('tournamentP')">
@@ -411,5 +492,19 @@ function deleteGroup() {}
   width: 6rem;
   height: calc(100% - 1rem);
   box-sizing: border-box;
+}
+
+#group-teams {
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  margin: 0.25rem;
+}
+
+#group-teams > * {
+  flex-grow: 1;
+  background-color: hsl(0, 0%, 35%);
+  margin: 0.25rem;
+  padding: 1rem;
+  border-radius: 1rem;
 }
 </style>

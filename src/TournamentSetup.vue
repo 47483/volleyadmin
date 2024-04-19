@@ -498,7 +498,7 @@ function inOtherGroup(t) {
       `"
       :items="tournament.groups"
     />
-    <div class="fresh full btn">Fortsätt till gruppspel</div>
+    <div class="fresh full btn" onclick="alert('Du har nått demots slut')">Fortsätt till gruppspel</div>
   </template>
 </template>
 

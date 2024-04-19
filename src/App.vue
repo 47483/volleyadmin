@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import GroupGames from './GroupGames.vue'
+import TournamentSetup from './TournamentSetup.vue'
 import * as api from '@/assets/api.js'
 
 const user = ref(null)
@@ -312,7 +312,7 @@ function deleteUser() {
             <div class="btn" @click="closePopup('')">NEJ</div>
           </div>
         </div>
-        <GroupGames :user="user" :token="token" />
+        <TournamentSetup :user="user" :token="token" />
       </template>
       <template v-else>
         <div class="label">Logga in för att kunna skapa och hantera dina egna turneringar</div>

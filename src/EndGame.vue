@@ -3,7 +3,7 @@ const props = defineProps(['user', 'token'])
 </script>
 
 <template>
-    <h1>Group Games</h1>
+    <h1>Endgame</h1>
 </template>
 
 <style scoped>

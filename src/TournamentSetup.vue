@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import * as api from '@/assets/api.js'
 
 const props = defineProps(['user', 'token'])
+const emits = defineEmits(['next'])
 
 const tournamentIn = ref('')
 const tournament = ref(null)
@@ -261,6 +262,14 @@ function inOtherGroup(t) {
   }
   return false
 }
+
+function beginGroupGames() {
+  api.apiPost(`group_match/?token=${props.token}`, function(data, res) {
+    if (res) {
+      emits('next', 'group')
+    }
+  })
+}
 </script>
 
 <template>
@@ -498,7 +507,7 @@ function inOtherGroup(t) {
       `"
       :items="tournament.groups"
     />
-    <div class="fresh full btn" onclick="alert('Du har nått demots slut')">Fortsätt till gruppspel</div>
+    <div v-if="tournament.teams.length >= 2 && tournament.groups.length >= 1" class="fresh full btn" @click="beginGroupGames()">Fortsätt till gruppspel</div>
   </template>
 </template>
 

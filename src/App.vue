@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import TournamentSetup from './TournamentSetup.vue'
+import GroupGames from './GroupGames.vue'
+import EndGame from './EndGame.vue'
 import * as api from '@/assets/api.js'
 
 const user = ref(null)
@@ -15,13 +17,33 @@ const passAgainIn = ref('')
 const popupError = ref(null)
 const popupMessage = ref(null)
 
+const stage = ref('setup')
+
 window.onload = function () {
   const sUser = sessionStorage.getItem('user')
   const sToken = sessionStorage.getItem('token')
   if (sUser && sToken) {
     user.value = sUser
     token.value = sToken
+    api.apiGet(`group_match/info/?token=${token.value}`, function(data, res) {
+      if (res && data.match_count) {
+        stage.value = 'group'
+        let endgame = true
+        for (let match of data.groups_matches) {
+          if (!match.is_completed) {
+            endgame = false
+          }
+        }
+        if (endgame) {
+          stage.value = 'endgame'
+        }
+      }
+    })
   }
+}
+
+function changeStage(target) {
+  stage.value = target
 }
 
 function openPopup(name) {
@@ -108,7 +130,6 @@ function signup() {
     `user/?username=${userIn.value}&password=${passIn.value}&email=${mailIn.value}`,
     function (data, res) {
       if (!res) {
-        console.log(data)
         if (data?.detail == 'User already exists') {
           popupError.value = 'Användarnamnet används redan'
           return
@@ -312,7 +333,9 @@ function deleteUser() {
             <div class="btn" @click="closePopup('')">NEJ</div>
           </div>
         </div>
-        <TournamentSetup :user="user" :token="token" />
+        <TournamentSetup v-if="stage=='setup'" :user="user" :token="token" @next="function(e) {changeStage(e)}" />
+        <GroupGames v-if="stage=='group'" :user="user" :token="token" />
+        <EndGame v-if="stage=='endgame'" :user="user" :token="token" />
       </template>
       <template v-else>
         <div class="label">Logga in för att kunna skapa och hantera dina egna turneringar</div>

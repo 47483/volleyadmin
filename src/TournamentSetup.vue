@@ -32,9 +32,9 @@ function getTournament() {
 
 function openPopup(name) {
   closePopup('')
+  document.getElementById(name).style.display = null
   popupError.value = null
   popupMessage.value = null
-  document.getElementById(name).style.display = null
 }
 
 function closePopup(e) {
@@ -264,7 +264,7 @@ function inOtherGroup(t) {
 }
 
 function beginGroupGames() {
-  api.apiPost(`group_match/?token=${props.token}`, function(data, res) {
+  api.apiPost(`group_match/?token=${props.token}`, function (data, res) {
     if (res) {
       emits('next', 'group')
     }
@@ -507,7 +507,13 @@ function beginGroupGames() {
       `"
       :items="tournament.groups"
     />
-    <div v-if="tournament.teams.length >= 2 && tournament.groups.length >= 1" class="fresh full btn" @click="beginGroupGames()">Fortsätt till gruppspel</div>
+    <div
+      v-if="tournament.teams.length >= 2 && tournament.groups.length >= 1"
+      class="fresh full btn"
+      @click="beginGroupGames()"
+    >
+      Fortsätt till gruppspel
+    </div>
   </template>
 </template>
 

@@ -25,21 +25,25 @@ window.onload = function () {
   if (sUser && sToken) {
     user.value = sUser
     token.value = sToken
-    api.apiGet(`group_match/info/?token=${token.value}`, function(data, res) {
-      if (res && data.match_count) {
-        stage.value = 'group'
-        let endgame = true
-        for (let match of data.groups_matches) {
-          if (!match.is_completed) {
-            endgame = false
-          }
-        }
-        if (endgame) {
-          stage.value = 'endgame'
+    redirect()
+  }
+}
+
+function redirect() {
+  api.apiGet(`group_match/info/?token=${token.value}`, function(data, res) {
+    if (res && data.match_count) {
+      stage.value = 'group'
+      let endgame = true
+      for (let match of data.groups_matches) {
+        if (!match.is_completed) {
+          endgame = false
         }
       }
-    })
-  }
+      if (endgame) {
+        stage.value = 'endgame'
+      }
+    }
+  })
 }
 
 function changeStage(target) {
@@ -91,6 +95,7 @@ function login() {
       token.value = data.token
       sessionStorage.setItem('user', user.value)
       sessionStorage.setItem('token', token.value)
+      redirect()
     }
   )
 }
@@ -142,6 +147,7 @@ function signup() {
       token.value = data.token
       sessionStorage.setItem('user', user.value)
       sessionStorage.setItem('token', token.value)
+      redirect()
     }
   )
 }

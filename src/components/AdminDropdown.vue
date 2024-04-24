@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = defineProps(['title', 'icon', 'items'])
+const props = defineProps(['title', 'icon', 'items', 'noadd'])
 
 const minimized = ref(true)
 
@@ -20,7 +20,7 @@ function toggleMinimized() {
       <h2>{{ props.title ? props.title : 'Unnamed' }}<span>{{ props.items?.length ? ` ( ${props.items.length} )` : '' }}</span></h2>
       <div v-html="props.icon" class="dropdown-icon" />
     </div>
-    <div class="dropdown-add btn" @click="$emit('addclick')">
+    <div v-if="!props.noadd" class="dropdown-add btn" @click="$emit('addclick')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="1.5rem"

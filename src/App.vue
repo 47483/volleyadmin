@@ -84,6 +84,7 @@ function login() {
     popupError.value = 'Lösenord saknas'
     return
   }
+  stage.value = 'setup'
   api.apiPost(
     `user/token/?username=${userIn.value}&password=${passIn.value}`,
     function (data, res) {

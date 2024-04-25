@@ -73,3 +73,7 @@
 .fresh {
   background-color: hsl(100, 50%, 50%);
 }
+
+.scary {
+  background-color: hsl(0, 75%, 50%);
+}

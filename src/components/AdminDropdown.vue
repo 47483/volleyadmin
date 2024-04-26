@@ -15,7 +15,7 @@ requestAnimationFrame(update)
 
 function update() {
   let tot = 0
-  if (target.value.children) {
+  if (target.value?.children) {
     for (let child of Array.from(target.value.children)) {
       tot += child.offsetHeight
       const cStyle = window.getComputedStyle(child)

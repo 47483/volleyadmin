@@ -35,11 +35,9 @@ function getMatches() {
       const name = { name: `${m.team1_name} - ${m.team2_name}` }
       if (m.is_completed) {
         played.value.push({ ...m, ...name })
+      } else if (m.active) {
+        ongoing.value.push({ ...m, ...name })
       } else {
-        if (m.active) {
-          ongoing.value.push({ ...m, ...name })
-          return
-        }
         remaining.value.push({ ...m, ...name })
       }
     }

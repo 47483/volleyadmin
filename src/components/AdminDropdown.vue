@@ -15,11 +15,13 @@ requestAnimationFrame(update)
 
 function update() {
   let tot = 0
-  for (let child of Array.from(target.value?.children)) {
-    tot += child.offsetHeight
-    const cStyle = window.getComputedStyle(child)
-    tot += parseFloat(cStyle.marginTop)
-    tot += parseFloat(cStyle.marginBottom)
+  if (target.value.children) {
+    for (let child of Array.from(target.value.children)) {
+      tot += child.offsetHeight
+      const cStyle = window.getComputedStyle(child)
+      tot += parseFloat(cStyle.marginTop)
+      tot += parseFloat(cStyle.marginBottom)
+    }
   }
   targetHeight.value = minimized.value ? '4rem' : `${tot}px`
   requestAnimationFrame(update)

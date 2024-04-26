@@ -7,4 +7,5 @@ const props = defineProps(['user', 'token'])
 </template>
 
 <style scoped>
+@import '@/assets/adminview.css';
 </style>

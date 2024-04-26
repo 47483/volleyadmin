@@ -291,7 +291,7 @@ function beginGroupGames() {
     <div v-if="error" class="label error">{{ error }}</div>
   </template>
   <template v-else>
-    <div id="createteamP" style="display: none" class="popup" @mousedown="closePopup">
+    <div id="createteamP" style="display: none" class="popup" @click="closePopup">
       <div>
         <h2>Skapa nytt lag</h2>
         <div class="label">Lagnamn:</div>
@@ -309,7 +309,7 @@ function beginGroupGames() {
         <div class="btn" @click="createTeam">Skapa lag</div>
       </div>
     </div>
-    <div id="teamP" style="display: none" class="popup" @mousedown="closePopup">
+    <div id="teamP" style="display: none" class="popup" @click="closePopup">
       <div>
         <h2>Laguppgifter, {{ team }}</h2>
         <div class="label">Lagnamn:</div>
@@ -329,7 +329,7 @@ function beginGroupGames() {
         <div v-if="popupError" class="label error">{{ popupError }}</div>
       </div>
     </div>
-    <div id="tournamentP" style="display: none" class="popup" @mousedown="closePopup">
+    <div id="tournamentP" style="display: none" class="popup" @click="closePopup">
       <div>
         <h2>{{ tournament.name }}</h2>
         <div class="label">Turneringsnamn:</div>
@@ -349,7 +349,7 @@ function beginGroupGames() {
         <div v-if="popupError" class="label error">{{ popupError }}</div>
       </div>
     </div>
-    <div id="creategroupP" style="display: none" class="popup" @mousedown="closePopup">
+    <div id="creategroupP" style="display: none" class="popup" @click="closePopup">
       <div>
         <h2>Skapa ny grupp</h2>
         <div class="label">Gruppnamn:</div>
@@ -518,6 +518,8 @@ function beginGroupGames() {
 </template>
 
 <style scoped>
+@import '@/assets/adminview.css';
+
 #return-btn {
   background-color: hsl(0, 0%, 40%);
   padding: 0.5rem;

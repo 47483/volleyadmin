@@ -87,7 +87,7 @@ function closePopup(e) {
 </script>
 
 <template>
-  <div id="matchP" class="popup" style="display: none" @mousedown="closePopup">
+  <div id="matchP" class="popup" style="display: none" @click="closePopup">
     <div>
       <h2>{{ match.team1_name }} <span style="font-weight: normal;">vs</span> {{ match.team2_name }}</h2>
       <div v-if="!match.active" class="fresh btn" @click="beginMatch()">Påbörja match</div>
@@ -237,6 +237,8 @@ function closePopup(e) {
 </template>
 
 <style scoped>
+@import '@/assets/adminview.css';
+
 #set-table {
   border-spacing: 0.5rem;
   background-color: hsl(0, 0%, 40%);

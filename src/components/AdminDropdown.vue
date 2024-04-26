@@ -46,6 +46,8 @@ function toggleMinimized() {
 </template>
 
 <style scoped>
+@import '@/assets/adminview.css';
+
 #dropdown {
   width: 100%;
   background-color: hsl(0, 0%, 40%);

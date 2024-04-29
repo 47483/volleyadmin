@@ -94,6 +94,7 @@ function login() {
       }
       user.value = userIn.value
       token.value = data.token
+      sessionStorage.clear()
       sessionStorage.setItem('user', user.value)
       sessionStorage.setItem('token', token.value)
       redirect()

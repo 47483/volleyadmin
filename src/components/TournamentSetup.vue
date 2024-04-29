@@ -67,7 +67,7 @@ function createTournament() {
         error.value = 'Kunde inte skapa turnering, försök igen senare'
         return
       }
-      sessionStorage.removeItem('matchsets')
+      localStorage.removeItem('matchsets')
       tournament.value = data
     }
   )

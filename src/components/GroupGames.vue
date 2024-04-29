@@ -16,8 +16,8 @@ const played = ref([])
 const match = ref({})
 const matchSets = ref({})
 
-if (sessionStorage.getItem('matchsets')) {
-  matchSets.value = JSON.parse(sessionStorage.getItem('matchsets'))
+if (localStorage.getItem('matchsets')) {
+  matchSets.value = JSON.parse(localStorage.getItem('matchsets'))
 }
 
 getMatches()
@@ -65,12 +65,12 @@ function createSet() {
   if (matchSets.value[match.value.id]?.length < 7) {
     matchSets.value[match.value.id].push({team1: null, team2: null})
   }
-  sessionStorage.setItem('matchsets', JSON.stringify(matchSets.value))
+  localStorage.setItem('matchsets', JSON.stringify(matchSets.value))
 }
 
 function updateSet(team, set, value) {
   matchSets.value[match.value.id][set][team] = value
-  sessionStorage.setItem('matchsets', JSON.stringify(matchSets.value))
+  localStorage.setItem('matchsets', JSON.stringify(matchSets.value))
 }
 
 function openPopup(name) {

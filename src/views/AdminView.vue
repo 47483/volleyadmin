@@ -41,7 +41,10 @@ function redirect() {
       }
       if (endgame) {
         stage.value = 'endgame'
+        sessionStorage.removeItem('matchsets')
       }
+    } else {
+      sessionStorage.removeItem('matchsets')
     }
   })
 }

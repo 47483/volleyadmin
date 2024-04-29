@@ -73,6 +73,11 @@ function updateSet(team, set, value) {
   sessionStorage.setItem('matchsets', JSON.stringify(matchSets.value))
 }
 
+function deleteSet(set) {
+  matchSets.value[match.value.id].splice(set, 1)
+  sessionStorage.setItem('matchsets', JSON.stringify(matchSets.value))
+}
+
 function openPopup(name) {
   closePopup('')
   document.getElementById(name).style.display = null
@@ -109,8 +114,8 @@ function closePopup(e) {
         <table class="full" id="set-table">
           <tr>
             <th>Set</th>
-            <th>Poäng - {{ match.team1_name }}</th>
-            <th>Poäng - {{ match.team2_name }}</th>
+            <th>P. {{ match.team1_name }}</th>
+            <th>P. {{ match.team2_name }}</th>
           </tr>
           <tr v-for="(set, i) in matchSets[match.id]" :key="set.team1 + set.team2">
             <td>{{ i+1 }}</td>
@@ -120,7 +125,7 @@ function closePopup(e) {
             <td>
               <input class="set-input" type="number" placeholder="Poäng" :value="set.team2" @change="function(e) {updateSet('team2', i, e.target.value)}" />
             </td>
-            <td @click="matchSets[match.id].splice(i, 1)">
+            <td @click="deleteSet(i)">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -138,6 +143,11 @@ function closePopup(e) {
                 <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
               </svg>
             </td>
+          </tr>
+          <tr v-if="!matchSets[match.id]?.length > 0">
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
           </tr>
         </table>
         <div class="fresh btn">Avsluta match</div>

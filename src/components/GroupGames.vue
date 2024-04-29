@@ -58,6 +58,10 @@ function beginMatch() {
   )
 }
 
+function endMatch() {
+
+}
+
 function createSet() {
   if (!matchSets.value[match.value.id]?.length) {
     matchSets.value[match.value.id] = []
@@ -150,7 +154,7 @@ function closePopup(e) {
             <td>-</td>
           </tr>
         </table>
-        <div class="fresh btn">Avsluta match</div>
+        <div v-if="matchSets[match.id]?.length > 0" class="fresh btn" @click="endMatch()">Avsluta match</div>
       </template>
     </div>
   </div>

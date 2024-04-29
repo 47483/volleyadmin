@@ -14,12 +14,11 @@ const ongoing = ref([])
 const played = ref([])
 
 const match = ref({})
-const matchSets = ref({
-  465: [
-    { team1: 0, team2: 0 },
-    { team1: 1, team2: 0 }
-  ]
-})
+const matchSets = ref({})
+
+if (sessionStorage.getItem('matchsets')) {
+  matchSets.value = JSON.parse(sessionStorage.getItem('matchsets'))
+}
 
 getMatches()
 
@@ -52,10 +51,26 @@ function beginMatch() {
     `group_match/active/${match.value.id}/?token=${props.token}&active=true`,
     function (data, res) {
       if (res) {
+        matchSets.value[match.value.id] = [{team1: null, team2: null}]
         getMatches()
       }
     }
   )
+}
+
+function createSet() {
+  if (!matchSets.value[match.value.id]?.length) {
+    matchSets.value[match.value.id] = []
+  }
+  if (matchSets.value[match.value.id]?.length < 7) {
+    matchSets.value[match.value.id].push({team1: null, team2: null})
+  }
+  sessionStorage.setItem('matchsets', JSON.stringify(matchSets.value))
+}
+
+function updateSet(team, set, value) {
+  matchSets.value[match.value.id][set][team] = value
+  sessionStorage.setItem('matchsets', JSON.stringify(matchSets.value))
 }
 
 function openPopup(name) {
@@ -85,12 +100,12 @@ function closePopup(e) {
 </script>
 
 <template>
-  <div id="matchP" class="popup" style="display: none" @click="closePopup">
+  <div id="matchP" class="popup" style="display: none;" @click="closePopup">
     <div>
       <h2>{{ match.team1_name }} <span style="font-weight: normal;">vs</span> {{ match.team2_name }}</h2>
       <div v-if="!match.active" class="fresh btn" @click="beginMatch()">Påbörja match</div>
       <template v-else>
-        <div class="btn">Nytt set</div>
+        <div v-if="matchSets[match.id]?.length < 7 || !matchSets[match.id]?.length" class="btn" @click="createSet()">Nytt set</div>
         <table class="full" id="set-table">
           <tr>
             <th>Set</th>
@@ -100,12 +115,12 @@ function closePopup(e) {
           <tr v-for="(set, i) in matchSets[match.id]" :key="set.team1 + set.team2">
             <td>{{ i+1 }}</td>
             <td>
-              <input class="set-input" type="number" placeholder="Poäng" :value="set.team1" />
+              <input class="set-input" type="number" placeholder="Poäng" :value="set.team1" @change="function(e) {updateSet('team1', i, e.target.value)}" />
             </td>
             <td>
-              <input class="set-input" type="number" placeholder="Poäng" :value="set.team2" />
+              <input class="set-input" type="number" placeholder="Poäng" :value="set.team2" @change="function(e) {updateSet('team2', i, e.target.value)}" />
             </td>
-            <td>
+            <td @click="matchSets[match.id].splice(i, 1)">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -132,7 +147,6 @@ function closePopup(e) {
   <h1>Gruppspel</h1>
   <div v-if="error" class="label error">{{ error }}</div>
   <AdminDropdown
-    @addclick="console.log('add')"
     @itemclick="
       (e) => {
         match = e
@@ -164,7 +178,6 @@ function closePopup(e) {
     :items="remaining"
   />
   <AdminDropdown
-    @addclick="console.log('add')"
     @itemclick="
       (e) => {
         match = e
@@ -197,7 +210,6 @@ function closePopup(e) {
     :items="ongoing"
   />
   <AdminDropdown
-    @addclick="console.log('add')"
     @itemclick="
       (e) => {
         match = e
